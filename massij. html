@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHAMSO CHAT 🔥</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:sans-serif;background:#0f0f0f;color:#fff;margin:0;padding-bottom:70px}
+header{background:#ff2d55;padding:15px;text-align:center;font-weight:bold;font-size:22px;position:fixed;top:0;width:100%;z-index:10}
+#chat{margin-top:60px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{background:#222;padding:10px 14px;border-radius:14px;max-width:85%;word-break:break-word}
+.msg b{color:#ff8fa3;font-size:13px;display:block}
+.me{background:#ff2d55;align-self:flex-end}
+.me b{color:#fff}
+#box{display:flex;gap:6px;padding:10px;position:fixed;bottom:0;width:100%;background:#000}
+input{flex:1;padding:13px;border-radius:25px;border:none;outline:none;background:#222;color:#fff;font-size:16px}
+button{background:#ff2d55;color:#fff;border:none;padding:13px 20px;border-radius:25px;font-weight:bold}
+#online{text-align:center;font-size:13px;color:#0f0;margin:5px}
+</style>
+</head>
+<body>
+<header>CHAMSO CHAT 🔥</header>
+<div id="online">● متصل - Wifi / 4G / 5G</div>
+<div id="chat"></div>
+<div id="box">
+<input id="input" placeholder="اكتب ميساج...">
+<button onclick="sendMsg()">ارسال</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ======== بدل هاذو بالكود تاعك من Firebase ========
+const firebaseConfig = {
+  apiKey: "حط_هنا_apiKey_تاعك",
+  authDomain: "chamso-chat.firebaseapp.com",
+  databaseURL: "https://chamso-chat-default-rtdb.firebaseio.com",
+  projectId: "chamso-chat",
+  storageBucket: "chamso-chat.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "حط_هنا_appId_تاعك"
+};
+// ===============================================
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const msgsRef = ref(db, "messages");
+
+let name = localStorage.getItem("chamso_name");
+if(!name){
+  name = prompt("واش اسمك؟") || "شمسو";
+  localStorage.setItem("chamso_name", name);
+}
+
+let chatBox = document.getElementById("chat");
+
+onChildAdded(msgsRef, (data)=>{
+  let m = data.val();
+  let d = document.createElement("div");
+  d.className = "msg" + (m.name === name ? " me" : "");
+  d.innerHTML = `<b>${m.name}</b>${m.text}`;
+  chatBox.appendChild(d);
+  window.scrollTo(0, document.body.scrollHeight);
+});
+
+window.sendMsg = function(){
+  let inp = document.getElementById("input");
+  if(!inp.value.trim()) return;
+  push(msgsRef, { name: name, text: inp.value, time: Date.now() });
+  inp.value = "";
+}
+
+document.getElementById("input").addEventListener("keydown", e=>{
+  if(e.key === "Enter") sendMsg();
+});
+</script>
+</body>
+</html>
